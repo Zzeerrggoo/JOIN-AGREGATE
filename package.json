@@ -1,0 +1,16 @@
+{
+  "name": "fe-pg-js",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "pg": "^8.3.3"
+  }
+}
