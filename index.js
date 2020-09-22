@@ -3,7 +3,7 @@ const { User, client } = require('./models');
 //
 (async () => {
   const users = await getRandomUsers({
-    page: 2,
+    page: 33,
   });
   await User.bulkCreate(users);
   client.end();

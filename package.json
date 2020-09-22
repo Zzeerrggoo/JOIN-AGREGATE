@@ -1,6 +1,6 @@
 {
-  "name": "fe-pg-js",
-  "version": "1.0.0",
+  "name": "pg-inserter",
+  "version": "1.0.1",
   "description": "",
   "private": true,
   "scripts": {
@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.20.0",
+    "lodash": "^4.17.20",
     "pg": "^8.3.3"
   }
 }
