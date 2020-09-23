@@ -11,6 +11,11 @@ class User {
     return rows;
   }
 
+  /**
+   *
+   * @param {object[]} values
+   * @returns {Promise<object[]>}
+   */
   static async bulkCreate(values) {
     const valuesString = values
       .map(
@@ -29,7 +34,6 @@ class User {
       VALUES ${valuesString}\n
       RETURNING *;`
     );
-    console.table(rows);
     return rows;
   }
 }

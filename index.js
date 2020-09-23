@@ -1,10 +1,18 @@
+const { promises } = require('fs');
+const path = require('path');
 const _ = require('lodash');
+
 const { getRandomUsers } = require('./api');
 const { User, Phone, client } = require('./models');
 const { generatePhones } = require('./utils/phones');
 //
 //
 (async () => {
+  const resetDbQueryString = (
+    await promises.readFile(path.join(__dirname, '/sql/reset-db-query.psql'))
+  ).toString();
+  await client.query(resetDbQueryString);
+
   const users = await User.bulkCreate(await getRandomUsers({ page: 5 }));
   const phones = await Phone.bulkCreate(generatePhones());
 
@@ -13,26 +21,36 @@ const { generatePhones } = require('./utils/phones');
    *    ||
    *    \/
    */
-  const ordersValues = users
-    .map(u => `(${u.id}),`.repeat(_.random(1, 10)))
-    .join('');
-  const { rows: orders } = await client.query(`INSERT INTO orders ("userId")\n
-  VALUES ${ordersValues.slice(0, ordersValues.length - 1)}\n
-  RETURNING id;`);
 
-  const ordersToPhonesValues = orders
-    .map(o => {
-      const buf = [];
-      const phonesCount = _.random(1, phones.length - 1);
-      for (let i = 0; i < phonesCount; ++i) {
-        buf.push(`(${o.id},${phones[i].id}, ${_.random(1, 10)})`);
-      }
-      return buf.join(',');
+  //  '(1),(1),(1),(2),(2),(2),(2),(3),(4),()'
+  const ordersValuesString = users
+    .map(u => {
+      const userOrders = [...new Array(_.random(1, 10, false))];
+      userOrders.forEach((item, index, arr) => {
+        arr[index] = `(${u.id})`;
+      });
+      return userOrders.join(',');
     })
     .join(',');
 
-  await client.query(`INSERT INTO orders_to_phones ("orderId", "phoneId", "quantity")\n
-  VALUES ${ordersToPhonesValues};`);
+  const { rows: orders } = await client.query(`INSERT INTO orders ("userId")\n
+  VALUES ${ordersValuesString}\n
+  RETURNING id;`);
+
+  const phonesToOrdersValuesString = orders
+    .map(o => {
+      const arr = [...new Array(_.random(1, phones.length))];
+      arr.forEach((i, index, arr) => {
+        arr[index] = phones[_.random(1, phones.length - 1)];
+      });
+      const phonesToBuy = [...new Set(arr)];
+      return phonesToBuy
+        .map(p => `(${o.id}, ${p.id}, ${_.random(1, 10)})`)
+        .join(',');
+    })
+    .join(',');
+  await client.query(`INSERT INTO phones_to_orders ("orderId", "phoneId", "quantity")\n
+  VALUES ${phonesToOrdersValuesString};`);
 
   client.end();
 })();
