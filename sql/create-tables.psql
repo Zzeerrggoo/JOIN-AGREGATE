@@ -1,0 +1,70 @@
+drop table orders_to_phones;
+drop table orders;
+drop table users;
+drop table phones;
+
+create table if not exists users
+(
+	id serial not null
+		constraint users_pkey
+			primary key,
+	"firstName" varchar(64) not null,
+	"lastName" varchar(64) not null,
+	email varchar(64) not null
+		constraint users_email_key
+			unique,
+	"isMale" boolean,
+	birthday date not null
+		constraint users_birthday_check
+			check (birthday < CURRENT_DATE),
+	"createAt" timestamp default CURRENT_TIMESTAMP
+);
+
+create table if not exists phones
+(
+	id serial not null
+		constraint phones_pkey
+			primary key,
+	brand varchar(20) not null,
+	model varchar(60) not null,
+	price numeric(10,2) not null
+		constraint phones_price_check
+			check (price >= 0.00),
+	quantity integer default 0 not null
+		constraint phones_quantity_check
+			check (quantity >= 0),
+	description text,
+	createdat timestamp default CURRENT_TIMESTAMP not null,
+	constraint phones_brand_model_key
+		unique (brand, model)
+);
+
+
+
+create table if not exists orders
+(
+	id serial not null
+		constraint orders_pkey
+			primary key,
+	"userId" integer
+		constraint "orders_userId_fkey"
+			references users,
+	"createdAt" timestamp default CURRENT_TIMESTAMP
+);
+
+
+
+create table if not exists orders_to_phones
+(
+	"orderId" integer not null
+		constraint "orders_to_phones_orderId_fkey"
+			references orders,
+	"phoneId" integer not null
+		constraint "orders_to_phones_phoneId_fkey"
+			references phones,
+	quantity integer default 1 not null
+		constraint orders_to_phones_quantity_check
+			check (quantity > 0),
+	constraint orders_to_phones_pkey
+		primary key ("orderId", "phoneId")
+);
