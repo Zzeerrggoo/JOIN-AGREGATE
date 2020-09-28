@@ -1,0 +1,73 @@
+/*1. The most expencive order*/
+SELECT po."orderId" AS "ORDER ID", sum(po.quantity * p.price) AS "TOTAL"
+FROM 
+phones_to_orders AS po JOIN phones AS p 
+ON po."phoneId" = p.id
+GROUP BY po."orderId"
+ORDER BY "TOTAL" DESC
+LIMIT 1;
+
+
+/*2. The top buyer*/
+SELECT o."userId" AS "USER ID", sum(po.quantity * p.price) AS "TOTAL"
+FROM 
+phones_to_orders AS po JOIN phones AS p 
+ON po."phoneId" = p.id
+JOIN orders AS o ON po."orderId" = o."userId"
+GROUP BY o."userId"
+ORDER BY "TOTAL" DESC
+LIMIT 1;
+
+
+/*3. Average order price*/
+WITH sum_per_order AS 
+(SELECT sum(po.quantity * p.price) AS "ORDER PRICE"
+FROM phones_to_orders AS po JOIN phones AS p ON po."phoneId" = p.id
+GROUP BY po."orderId") 
+SELECT avg("ORDER PRICE") FROM sum_per_order;
+
+
+/*4. Quantity of phones per brand*/
+SELECT brand, sum(quantity) FROM phones
+GROUP BY brand;
+
+
+/*5. All products per precise order*/
+SELECT p.brand, p.model, po.quantity FROM 
+phones_to_orders AS po JOIN phones AS p ON po."phoneId" = p.id
+WHERE po."orderId" = 1; 
+
+
+/*6. Buyer with biggest quantity of orders*/
+SELECT "userId", count(*) AS "TOTAL ORDERS" FROM orders
+GROUP BY "userId"
+ORDER BY "TOTAL ORDERS" DESC
+LIMIT 1;
+
+
+/*7. Get all orders and sort by their total price*/
+SELECT po."orderId" AS "ORDER ID", sum(po.quantity * p.price) AS "TOTAL"
+FROM 
+phones_to_orders AS po JOIN phones AS p 
+ON po."phoneId" = p.id
+GROUP BY po."orderId"
+ORDER BY "TOTAL" DESC;
+
+
+/*8. TOP 10 of the most expencive phones*/
+SELECT * FROM phones
+ORDER BY price DESC
+LIMIT 10;
+
+
+/*9. Get all users with their orders quantity*/
+SELECT "userId", count(*) AS "TOTAL ORDERS" FROM orders
+GROUP BY "userId"
+ORDER BY "TOTAL ORDERS" DESC;
+
+
+/*10. TOP 10 of the most popular phones*/
+SELECT "phoneId", sum(quantity) AS "TOTAL SOLD" FROM phones_to_orders
+GROUP BY "phoneId"
+ORDER BY "TOTAL SOLD" DESC
+LIMIT 10;
